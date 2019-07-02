@@ -1,0 +1,9 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message PicMessage{
+    float imageW = 1;
+    float imageH = 2;
+    string imageUrl = 3;
+}

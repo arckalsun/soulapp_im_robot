@@ -1,6 +1,8 @@
 package com.arckal.soul.service;
-
-import com.arckal.soul.imlib.MsgCommand;
+import com.arckal.soul.imlib.msg.ImMessage;
+import com.arckal.soul.imlib.packets.Packet;
+import com.arckal.soul.imlib.TextMsgCommand;
+import com.arckal.soul.protos.MsgCommandOuterClass;
 
 /**
  * @Author: arckal
@@ -15,7 +17,11 @@ public interface ChatService {
      */
     public boolean isSensitive(String words);
 
-    public  void saveMsgCommand(MsgCommand msg);
+    public  void saveMsgCommand(MsgCommandOuterClass.MsgCommand msg);
+
+    public  void saveTextMsgCommand(TextMsgCommand msg);
+
+    public  void saveImMessage(ImMessage msg);
 
     /**
      * 调用机器人接口
@@ -23,4 +29,10 @@ public interface ChatService {
      * @return
      */
     public String askRobot(String question);
+
+    /**
+     * 发送消息
+     * @param packet
+     */
+    public void send(Packet packet) ;
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message AckCommand{
+    bool remain = 1;
+    string readLastMsgId = 2;
+    string timestamp = 3;
+    Type type = 4;
+
+    enum Type {
+        MSG = 0;
+        SYNC = 1;
+        UNRECOGNIZED = -1;
+    }
+
+}

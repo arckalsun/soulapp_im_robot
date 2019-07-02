@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message MusicMessage{
+    string coverUrl = 1;
+    string author = 2;
+    string name = 3;
+    string url = 4;
+    string duration = 5;
+    string platform = 6;
+}

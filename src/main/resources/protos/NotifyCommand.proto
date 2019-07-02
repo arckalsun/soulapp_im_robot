@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message NotifyCommand{
+    string content = 1;
+    Type type = 2;
+    string From = 3;
+    string To = 4;
+
+    enum Type {
+        NORMAL = 0;
+        BLOCK = 1;
+        UNRECOGNIZED = -1;
+    }
+}

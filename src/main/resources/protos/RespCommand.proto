@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message RespCommand{
+    Type type = 1;
+    Status status = 2;
+    string errorMsg = 3;
+    //对应Java long类型
+    uint64 timestamp = 4;
+
+    enum Type {
+        SAUTH = 0;
+        MSG = 1;
+        GENERAL = 2;
+        UNRECOGNIZED = -1;
+    }
+
+    enum Status {
+        SUCCESS = 0;
+        ERROR = 1;
+//        UNRECOGNIZED = -1;
+    }
+}

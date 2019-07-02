@@ -1,0 +1,10 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message PositionMessage{
+    string title = 1;
+    string address = 2;
+    double lng = 3;
+    double lat = 4;
+}

@@ -1,15 +1,14 @@
 package com.arckal.soul.imlib;
 
 import com.arckal.soul.SoulConfig;
-import com.arckal.soul.dao.ChatDAO;
 import com.arckal.soul.dao.UserRedisDAO;
-import com.arckal.soul.imlib.Packet.AuthPacket;
-import com.arckal.soul.imlib.Packet.Packet;
-import com.arckal.soul.imlib.Packet.TextPacket;
-import com.arckal.soul.imlib.thread.HeartBeatThread;
-import com.arckal.soul.imlib.thread.PacketReaderThread;
-import com.arckal.soul.imlib.thread.PacketWriterThread;
-import com.arckal.soul.imlib.thread.RedisListenThread;
+import com.arckal.soul.imlib.packets.AuthPacket;
+import com.arckal.soul.imlib.packets.MyTextPacket;
+import com.arckal.soul.imlib.packets.Packet;
+import com.arckal.soul.thread.HeartBeatThread;
+import com.arckal.soul.thread.PacketReaderThread;
+import com.arckal.soul.thread.PacketWriterThread;
+import com.arckal.soul.thread.RedisListenThread;
 import com.arckal.soul.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -72,7 +71,20 @@ public class SoulChatClient implements Observer {
     @Autowired
     public SoulChatClient(SoulConfig config){
         this.soulConfig = config;
+        try{
+            //文件控制器
+            FileHandler fileHandler = new FileHandler("client.log");
+            fileHandler.setLevel(Level.INFO);
+            logger.addHandler(fileHandler);
+            // 初始化队列
+            this.packetQueue = new LinkedBlockingDeque<Packet>();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+
     }
+
     public void restartThreads(){
         try {
             System.out.println("关闭其他线程");
@@ -127,7 +139,7 @@ public class SoulChatClient implements Observer {
                 System.out.println("connect success: " + this.socket.getRemoteSocketAddress());
 
                 // 开启一个接收数据的线程
-                PacketReaderThread packetReaderThread = new PacketReaderThread(this.socket.getInputStream(),this,chatService);
+                PacketReaderThread packetReaderThread = new PacketReaderThread(this.socket.getInputStream());
                 packetReaderThread.addObserver(this);
                 this.readThread = new Thread(packetReaderThread);
                 this.readThread.setDaemon(true);
@@ -157,6 +169,8 @@ public class SoulChatClient implements Observer {
                 System.out.println("所有线程启动完毕！");
 
                 // 开启监听redis任务的线程
+                Thread.sleep(5*1000);
+                System.out.println("开始监听redis队列");
                 RedisListenThread redisListenThread1 = new RedisListenThread(userRedisDAO,this);
                 redisListenThread1.addObserver(this);
                 this.redisListenThread = new Thread(redisListenThread1);
@@ -170,6 +184,7 @@ public class SoulChatClient implements Observer {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -190,16 +205,16 @@ public class SoulChatClient implements Observer {
 
     public void start(){
         try{
-            //文件控制器
-            FileHandler fileHandler = new FileHandler("client.log");
-            fileHandler.setLevel(Level.INFO);
-            logger.addHandler(fileHandler);
-            // 初始化队列
-            this.packetQueue = new LinkedBlockingDeque<Packet>();
+//            //文件控制器
+//            FileHandler fileHandler = new FileHandler("client.log");
+//            fileHandler.setLevel(Level.INFO);
+//            logger.addHandler(fileHandler);
+//            // 初始化队列
+//            this.packetQueue = new LinkedBlockingDeque<Packet>();
 
             restartThreads();
 
-        }catch (IOException e){
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -209,14 +224,17 @@ public class SoulChatClient implements Observer {
      * @throws InterruptedException
      */
     public void send(Packet packet) throws InterruptedException {
+        if (packetQueue==null || packet==null)
+            return;
+
         packetQueue.put(packet);
         // 保存数据
-        if(packet instanceof TextPacket){
-            MsgCommand msg = new MsgCommand(((TextPacket) packet).getFromId(),
-                    ((TextPacket) packet).getToId(),
-                    ((TextPacket) packet).getTextMsg(),
-                    ((TextPacket) packet).getMsgTime());
-            chatService.saveMsgCommand(msg);
+        if(packet instanceof MyTextPacket){
+            TextMsgCommand msg = new TextMsgCommand(((MyTextPacket) packet).getFromId(),
+                    ((MyTextPacket) packet).getToId(),
+                    ((MyTextPacket) packet).getText(),
+                    ((MyTextPacket) packet).getMsgTime());
+            chatService.saveTextMsgCommand(msg);
         }
 
     }
@@ -227,9 +245,9 @@ public class SoulChatClient implements Observer {
 //
 //        // 构造数据包
 //        String toUserId = "29885200";
-//        Packet textPacket = new TextPacket(client.soulId,toUserId,"hello,arckal");
-//        Packet typeStartPacket = new CmdPacket(client.soulId,toUserId,true);
-//        Packet typeEndPacket = new CmdPacket(client.soulId,toUserId,false);
+//        packets textPacket = new MyTextPacket(client.soulId,toUserId,"hello,arckal");
+//        packets typeStartPacket = new CmdPacket(client.soulId,toUserId,true);
+//        packets typeEndPacket = new CmdPacket(client.soulId,toUserId,false);
 //
 //        // 发送指令包
 ////        System.out.println("发送指令包：输入中");

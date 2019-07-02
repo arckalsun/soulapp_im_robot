@@ -1,0 +1,8 @@
+syntax = "proto3";
+package com.arckal.soul;
+import "PicMessage.proto";
+option java_package = "com.arckal.soul.protos";
+
+message PicMessages{
+    repeated PicMessage picMessages = 1;
+}

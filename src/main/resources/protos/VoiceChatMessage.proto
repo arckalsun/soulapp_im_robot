@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message VoiceChatMessage{
+    string signature = 1;
+    string avatarColor = 2;
+    string avatarName = 3;
+    string channelId = 4;
+    string content = 5;
+    int32 type = 6;
+    //对应Java long类型
+    uint64 firstRequestTimeStamp = 7;
+}

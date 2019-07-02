@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message PshCommand{
+    Type type = 1;
+    string errorMsg = 2;
+
+    enum Type {
+        SYNC = 0;
+        KICK = 1;
+        UNRECOGNIZED = -1;
+    }
+}

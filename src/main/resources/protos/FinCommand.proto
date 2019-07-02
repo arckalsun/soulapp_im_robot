@@ -1,0 +1,11 @@
+syntax = "proto3";
+package com.arckal.soul;
+import "SyncFin.proto";
+import "MsgFin.proto";
+
+option java_package = "com.arckal.soul.protos";
+
+message FinCommand{
+    SyncFin syncFin = 1;
+    MsgFin msgFin = 2;
+}

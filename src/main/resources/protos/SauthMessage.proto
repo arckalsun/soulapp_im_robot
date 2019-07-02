@@ -1,0 +1,9 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message SauthMessage{
+    string soulId = 1;
+    string uid = 2;
+    string sid = 3;
+}

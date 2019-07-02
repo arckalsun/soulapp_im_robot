@@ -1,6 +1,9 @@
 package com.arckal.soul.dao;
 
-import com.arckal.soul.imlib.MsgCommand;
+import com.arckal.soul.imlib.TextMsgCommand;
+import com.arckal.soul.imlib.msg.ImMessage;
+import com.arckal.soul.imlib.msg.chat.*;
+import com.arckal.soul.protos.MsgCommandOuterClass.MsgCommand;
 import com.arckal.soul.utils.MongoUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -9,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+
 
 /**
  * @Author: arckal
@@ -34,15 +35,74 @@ public class ChatDAO {
 
     // 保存数据
     public  void saveMsgCommand(MsgCommand msg){
+        switch (msg.getType()){
+            case TEXT:
+                saveChat("",msg.getFrom(),msg.getTo(),msg.getTextMsg().getText(),msg.getTimestamp(),"TEXT");
+                break;
+            case VOICE:
+                saveChat("",msg.getFrom(),msg.getTo(),msg.getVoiceMessage().getWord(),msg.getTimestamp(),"VOICE");
+                break;
+            case PIC:
+                saveChat("",msg.getFrom(),msg.getTo(),msg.getPicMessage().getImageUrl(),msg.getTimestamp(),"PIC");
+                break;
+            case USER_EXPRESSION:
+                saveChat("",msg.getFrom(),msg.getTo(),msg.getUserExpressionMessage().getImageUrl(),msg.getTimestamp(),"USER_EXPRESSION");
+                break;
+            case POSITION:
+                saveChat("",msg.getFrom(),msg.getTo(),msg.getPositionMessage().getAddress(),msg.getTimestamp(),"POSITION");
+                break;
+        }
+
+    }
+
+    // 保存数据
+    public  void saveTextMsgCommand(TextMsgCommand msg){
+        saveChat("",msg.getFromUserId(),msg.getToUserId(),msg.getMessage(),msg.getMsgTime(),"TEXT");
+    }
+
+    private void saveChat(String msgId, String from, String to, String text, long timestamp, String msgType){
         MongoCollection<Document> collection = this.mongoUtil.getCollection(mdb, mcol);
         Document doc = new Document();
-        doc.put("fromUserId",  msg.getFromUserId());
-        doc.put("toUserId",msg.getToUserId());
-        doc.put("msgText",msg.getMessage());
-        doc.put("msgTime",msg.getMsgTime());
+        doc.put("msgId",  msgId);
+        doc.put("fromUserId",  from);
+        doc.put("toUserId",to);
+        doc.put("msgText",text);
+        doc.put("msgTime",timestamp);
+        doc.put("msgType",msgType);
         collection.insertOne(doc);
     }
 
+    public void saveImMessage(ImMessage msg){
+        String content = "";
+        String msgType = "";
+        switch (msg.getChatMessage().getMsgType()){
+            case 1:
+                content = ((TextMsg)msg.getChatMessage().getMsgContent()).text;
+                msgType = "TEXT";
+                break;
+            case 2:
+                content = ((ImgMsg)msg.getChatMessage().getMsgContent()).imageUrl;
+                msgType = "PIC";
+                break;
+            case 8:
+                content = ((ExpressionMsg)msg.getChatMessage().getMsgContent()).imageUrl;
+                msgType = "USER_EXPRESSION";
+                break;
+            case 5:
+                content = ((AudioMsg)msg.getChatMessage().getMsgContent()).word;
+                msgType = "VOICE";
+                break;
+            case 33:
+                content = ((PositionMsg)msg.getChatMessage().getMsgContent()).address;
+                msgType = "POSITION";
+                break;
+            default:
+                content = "MsgType: " + String.valueOf(msg.getChatMessage().getMsgType());
+                msgType = "UNKONWN";
+                break;
+        }
+        saveChat(msg.msgId,msg.getFrom(),msg.getTo(),content,msg.getLocalTime(),msgType);
+    }
     // 获取敏感词
     public HashSet<String> getSensitiveWords(){
         HashSet<String> words = new HashSet<>();

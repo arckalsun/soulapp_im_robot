@@ -1,0 +1,7 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message ExpressionMessage{
+    string info = 1;
+}

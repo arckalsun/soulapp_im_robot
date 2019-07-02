@@ -1,0 +1,112 @@
+syntax = "proto3";
+package com.arckal.soul;
+
+import "TextMsg.proto";
+import "PicMessage.proto";
+import "PicMessages.proto";
+import "VideoMessage.proto";
+import "VoiceMessage.proto";
+import "RepostMessge.proto";
+import "ExpressionMessage.proto";
+import "UserExpressionMessage.proto";
+import "UserCardMessage.proto";
+import "FingerGuessMessage.proto";
+import "RollDiceMessage.proto";
+import "SoulmateCardMessage.proto";
+import "SensitiveWordMessage.proto";
+import "SnapChatMessage.proto";
+import "ExtChatMessage.proto";
+import "VoiceChatMessage.proto";
+import "ShareTagMessage.proto";
+import "PositionMessage.proto";
+import "MusicMessage.proto";
+
+
+option java_package = "com.arckal.soul.protos";
+
+message MsgCommand {
+    Type type = 1;
+    string from = 2;
+    string to = 3;
+    //对应Java long类型
+    uint64 timestamp = 4;
+    TextMsg textMsg = 6;
+    PicMessage picMessage = 7;
+    PicMessages picMessages = 8;
+    VideoMessage videoMessage = 9;
+    VoiceMessage voiceMessage = 10;
+    RepostMessge repostMessge = 11;
+    ExpressionMessage expressionMessage = 12;
+    UserExpressionMessage userExpressionMessage = 13;
+    UserCardMessage userCardMessage = 14;
+    FingerGuessMessage fingerGuessMessage = 15;
+    RollDiceMessage rollDiceMessage = 16;
+    SoulmateCardMessage soulmateCardMessage = 17;
+    SensitiveWordMessage sensitiveWordMessage = 18;
+    int32 snapChat = 19;
+    SnapChatMessage snapChatMessage = 20;
+    ExtChatMessage extChatMessage = 21;
+    VoiceChatMessage voiceChatMessage = 22;
+    ShareTagMessage shareTagMessage = 23;
+    string notice = 24;
+    PositionMessage positionMessage = 25;
+    MusicMessage musicMessage = 26;
+
+
+    enum MsgCase {
+        MSG_NOT_SET = 0;
+        TEXTMSG = 6;
+        PICMESSAGE = 7;
+        PICMESSAGES = 8;
+        VIDEOMESSAGE = 9;
+        VOICEMESSAGE = 10;
+        REPOSTMESSGE = 11;
+        EXPRESSIONMESSAGE = 12;
+        USEREXPRESSIONMESSAGE = 13;
+        USERCARDMESSAGE = 14;
+        FINGERGUESSMESSAGE = 15;
+        ROLLDICEMESSAGE = 16;
+        SOULMATECARDMESSAGE = 17;
+        SENSITIVEWORDMESSAGE = 18;
+        SNAPCHATMESSAGE = 20;
+        EXTCHATMESSAGE = 21;
+        VOICECHATMESSAGE = 22;
+        SHARETAGMESSAGE = 23;
+        POSITIONMESSAGE = 25;
+        MUSICMESSAGE = 26;
+    }
+    enum Type{
+        TEXT=0;
+        PIC=1;
+        MULTI_PIC=2;
+        VIDEO=3;
+        VOICE=4;
+        REPOST=5;
+        EXPRESSION=6;
+        USER_EXPRESSION=7;
+        RECALL=8;
+        PROMPT=9;
+        USER_CARD=10;
+        FINGER_GUESS=11;
+        ROLL_DICE=12;
+        CUSTOM=13;
+        SOULMATE_CARD=14;
+        FOLLOW_TOAST=15;
+        SHAREBG_INVITATION=16;
+        SENSITIVE_WORD=17;
+        INPUTSTART=18;
+        INPUTEND=19;
+        READALL=20;
+        READ=21;
+        SNAPCHAT=22;
+        MATCH_CARD=23;
+        EXT_CMD=24;
+        VOICE_CHAT=25;
+        REPORT=26;
+        TAG=27;
+        POST=28;
+        POSITION=29;
+        MUSIC=30;
+        UNRECOGNIZED=-1;
+    }
+}

@@ -1,7 +1,5 @@
 package com.arckal.soul.utils;
 
-import com.arckal.soul.imlib.Packet.CmdPacket;
-import com.arckal.soul.imlib.Packet.Packet;
 import org.apache.myfaces.shared_impl.util.ArrayUtils;
 
 import java.util.UUID;
@@ -23,6 +21,9 @@ public class DataUtils {
         return stringBuilder.toString();
     }
 
+    public static Long now(){
+        return Long.valueOf(System.currentTimeMillis());
+    }
 
     public static void printBytes(byte[] bytes){
 //        System.out.println();
@@ -68,10 +69,10 @@ public class DataUtils {
     }
 
     public static void main(String[] args){
-//        Packet packet = new AuthPacket("29885200","W/y1xyPrPHQDAP1NlA873wmL","GnmkfhVNtmbR5LLC+7nJg5vcXW+1Syec");
-//        Packet packet = new TextPacket("29885200","3909702","我是小哥哥,hahaha");
-        Packet packet = new CmdPacket("29885200","390970",true);
-        byte[] data = packet.getData();
-        printBytes(data);
+//        packets packets = new AuthPacket("29885200","W/y1xyPrPHQDAP1NlA873wmL","GnmkfhVNtmbR5LLC+7nJg5vcXW+1Syec");
+//        packets packets = new MyTextPacket("29885200","3909702","我是小哥哥,hahaha");
+//        packets packets = new CmdPacket("29885200","390970",true);
+//        byte[] data = packets.getData();
+//        printBytes(data);
     }
 }

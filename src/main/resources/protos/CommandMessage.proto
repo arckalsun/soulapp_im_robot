@@ -1,0 +1,61 @@
+syntax = "proto3";
+package com.arckal.soul;
+
+import "RespCommand.proto";
+import "PshCommand.proto";
+import "AckCommand.proto";
+import "SyncCommand.proto";
+import "FinCommand.proto";
+import "NotifyCommand.proto";
+import "PushMessage.proto";
+import "SyncFin.proto";
+import "MsgFin.proto";
+import "MsgCommand.proto";
+
+option java_package = "com.arckal.soul.protos";
+
+
+message CommandMessage{
+    string soulId = 1;
+    string cmdId = 2;
+    Type type = 3;
+    string acceptedMsgId = 4;
+    MsgCommand msgCommand = 5;
+    RespCommand respCommand = 6;
+    PshCommand pshCommand = 7;
+    AckCommand ackCommand = 8;
+    SyncCommand syncCommand = 9;
+    FinCommand finCommand = 10;
+    NotifyCommand notifyCommand = 11;
+    PushMessage pushMessage = 12;
+    SyncFin syncFin = 13;
+    MsgFin msgFin = 14;
+
+    enum Type {
+        MSG = 0;
+        SYNC = 1;
+        PSH = 2;
+        ACK = 3;
+        FIN = 4;
+        RESP = 5;
+        NOTIFY = 6;
+        PUSH = 7;
+        SYNC_FIN = 8;
+        MSG_FIN = 9;
+        FIRST_SYNC = 10;
+        UNRECOGNIZED = -1;
+    }
+    enum CmdCase {
+        CMD_NOT_SET = 0;
+        MSGCOMMAND = 5;
+        RESPCOMMAND = 6;
+        PSHCOMMAND = 7;
+        ACKCOMMAND = 8;
+        SYNCCOMMAND = 9;
+        FINCOMMAND = 10;
+        NOTIFYCOMMAND = 11;
+        PUSHMESSAGE = 12;
+        SYNCFIN = 13;
+        MSGFIN = 14;
+    }
+}

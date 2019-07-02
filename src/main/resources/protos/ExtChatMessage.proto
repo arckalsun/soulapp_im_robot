@@ -1,0 +1,8 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message ExtChatMessage{
+    string content = 1;
+    int32 type = 2;
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message MsgFin{
+    string readLastMsgId = 1;
+    string timestamp = 2;
+    Status status = 3;
+
+    enum Status {
+        TODO = 0;
+        DOING = 1;
+        DONE = 2;
+        UNRECOGNIZED = -1;
+    }
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message SyncCommand{
+    string startMsgId = 1;
+    string endMsgId = 2;
+    string startTimestamp = 3;
+    string endTimestamp = 4;
+}

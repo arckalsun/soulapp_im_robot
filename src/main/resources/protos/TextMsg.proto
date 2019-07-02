@@ -1,0 +1,8 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+message TextMsg{
+    string text = 1;
+    int32 type = 2;
+}

@@ -3,7 +3,9 @@ package com.arckal.soul;
 import com.arckal.soul.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.annotation.PostConstruct;
 
@@ -16,7 +18,7 @@ import javax.annotation.PostConstruct;
 public class SoulConfig {
     @Autowired
     private RedisUtil redisUtil;
-
+    private String userId;
     private Jedis jedis;
 
     @PostConstruct
@@ -24,8 +26,19 @@ public class SoulConfig {
         jedis = redisUtil.getJedis();
     }
 
+
     public String getUserId(){
-        return jedis.get("soul:user");
+        try{
+            if (userId==null || StringUtils.isEmpty(userId)){
+                userId = jedis.get("soul:user");
+            }
+            return userId;
+        }catch (JedisConnectionException e){
+            System.out.println("重连redis");
+            jedis = redisUtil.getJedis();
+            return redisUtil.getJedis().get("soul:user");
+        }
+
     }
 
     public String getToken(){
@@ -34,6 +47,10 @@ public class SoulConfig {
 
     public String getDeviceId(){
         return jedis.get("soul:"+getUserId()+":deviceid");
+    }
+
+    public String getUserAgent(){
+        return jedis.get("soul:"+getUserId()+":user_agent");
     }
 
     public String setUserId(String userid){

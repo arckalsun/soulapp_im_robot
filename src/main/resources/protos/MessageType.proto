@@ -1,0 +1,10 @@
+syntax = "proto3";
+package com.arckal.soul;
+option java_package = "com.arckal.soul.protos";
+
+enum MessageType{
+    Ping = 0;
+    SAUTH = 1;
+    COMMAND = 2;
+    UNRECOGNIZED = -1;
+}

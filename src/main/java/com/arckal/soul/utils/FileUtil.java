@@ -30,6 +30,12 @@ public class FileUtil {
         }
         return null;
     }
+
+    public static String getFileName(String path){
+        String[] arr = path.split("/");
+        return arr[arr.length-1];
+    }
+
     /**
      * 根据行读取内容
      * @return
@@ -57,7 +63,7 @@ public class FileUtil {
                 try {
                     read.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
+                    // Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -65,7 +71,7 @@ public class FileUtil {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
+                    // Auto-generated catch block
                     e.printStackTrace();
                 }
             }

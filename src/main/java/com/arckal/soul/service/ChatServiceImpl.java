@@ -2,7 +2,11 @@ package com.arckal.soul.service;
 
 import com.arckal.soul.dao.ChatDAO;
 import com.arckal.soul.imlib.ChatRobot;
-import com.arckal.soul.imlib.MsgCommand;
+import com.arckal.soul.imlib.msg.ImMessage;
+import com.arckal.soul.imlib.packets.Packet;
+import com.arckal.soul.imlib.TextMsgCommand;
+import com.arckal.soul.imlib.connection.PacketWriter;
+import com.arckal.soul.protos.MsgCommandOuterClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.HashSet;
@@ -46,8 +50,14 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void saveMsgCommand(MsgCommand msg) {
+    public void saveMsgCommand(MsgCommandOuterClass.MsgCommand msg) {
         this.chatDAO.saveMsgCommand(msg);
+//        this.chatDAO.saveImMessage(msg.get);
+    }
+
+    @Override
+    public void saveTextMsgCommand(TextMsgCommand msg) {
+        this.chatDAO.saveTextMsgCommand(msg);
     }
 
     /**
@@ -64,5 +74,15 @@ public class ChatServiceImpl implements ChatService {
             reply = robot.randomReply().getReply();
         }
         return reply;
+    }
+
+    @Override
+    public void saveImMessage(ImMessage msg) {
+        this.chatDAO.saveImMessage(msg);
+    }
+
+    @Override
+    public void send(Packet packet) {
+        PacketWriter.sendPacket(packet);
     }
 }
