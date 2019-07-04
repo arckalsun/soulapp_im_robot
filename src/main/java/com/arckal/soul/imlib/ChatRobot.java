@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.arckal.soul.baidu_aip.AudioFile;
 import com.arckal.soul.utils.FileUtil;
 import com.arckal.soul.utils.HttpRequest;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -27,6 +28,9 @@ public class ChatRobot {
 
     @Value("${robot.url}")
     private String robotCallback;
+
+    @Value("${robot.rewardUrl}")
+    private String rewardUrl;
 
     private List<String> listAudio;
     private List<String> listReplies;
@@ -160,7 +164,7 @@ public class ChatRobot {
         Random index = new Random();
         int i = index.nextInt(listReplies.size());
         String randomMsg = listReplies.get(i);
-        reply.setReply(randomMsg);
+        reply.setText(randomMsg);
         reply.setType("RANDOM_REPLY");
         return reply;
     }
@@ -186,7 +190,7 @@ public class ChatRobot {
         if(null!=listReplace && listReplace.contains(answer)){
             return null;
         }else{
-            reply.setReply(answer);
+            reply.setText(answer);
             reply.setType("ROBOT_REPLY");
 
         }
@@ -235,12 +239,12 @@ public class ChatRobot {
                 answer = parseAnswer(str);
             }
             if(answer==null || answer.equals("")){
-                answer = askSoulRobot(message).getReply();
+                answer = askSoulRobot("robot",message).getText();
             }
 
             // 后处理
             reply = handle_answer(answer);
-            if (reply==null || reply.getReply().equals("")){
+            if (reply==null || reply.getText().equals("")){
                 reply = randomReply();
             }
 
@@ -258,19 +262,41 @@ public class ChatRobot {
      * @param message
      * @return
      */
-    public ChatReply askSoulRobot(String message){
+    public ChatReply askSoulRobot(String uid, String message){
         ChatReply reply=new ChatReply();
         String str= null;
         try {
-            str = HttpRequest.sendGet(this.robotCallback,"question="+URLEncoder.encode(message,"UTF-8"));
-            reply.setReply(str);
-            reply.setType("SOUL_REPLY");
-        } catch (UnsupportedEncodingException e) {
+            str = HttpRequest.sendGet(this.robotCallback,"question="+URLEncoder.encode(message,"UTF-8")
+            +"&uid="+uid);
+            try{
+                JSONObject jsonObject = JSONObject.parseObject(str);
+                if(jsonObject!=null){
+                    reply.setUid(jsonObject.getString("uid"));
+                    reply.setText(jsonObject.getString("data"));
+                    reply.setType(jsonObject.getString("type"));
+                }
+            }catch (Exception e){
+                System.out.println("响应字符串无法解析为JSON");
+                System.out.println(str);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return  reply;
     }
 
+    /**
+     * 返回赞赏码回复
+     * @return
+     */
+    public ChatReply getRewardReply(String uid){
+        ChatReply reply=new ChatReply();
+        reply.setUid(uid);
+        reply.setText(this.rewardUrl);
+        reply.setType("img");
+        return reply;
+
+    }
     public static void main(String[] args)  {
         ChatRobot robot = new ChatRobot();
         for(int i=0; i<20; i++){

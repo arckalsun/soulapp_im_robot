@@ -1,4 +1,5 @@
 package com.arckal.soul.service;
+import com.arckal.soul.imlib.ChatReply;
 import com.arckal.soul.imlib.msg.ImMessage;
 import com.arckal.soul.imlib.packets.Packet;
 import com.arckal.soul.imlib.TextMsgCommand;
@@ -28,7 +29,7 @@ public interface ChatService {
      * @param question
      * @return
      */
-    public String askRobot(String question);
+    public ChatReply askRobot(String uid, String question);
 
     /**
      * 发送消息

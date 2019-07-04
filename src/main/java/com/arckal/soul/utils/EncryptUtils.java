@@ -55,7 +55,8 @@ public class EncryptUtils {
 //        byte[] plainText = "arckal".getBytes();
 //        System.out.println("plainText: " + new String(plainText));
 //        byte[] ciperText = EncryptUtils.encrypt(plainText);
-        byte[] ciperText = DataUtils.hexStrToBytes("1d56506c5e8a6d5f0d759665bc7b8feaee8474e3e0246d6967151c7746a712287deb451c6f85194048bde5d932a2527d2f64f7066a298f254603cbfd648627c4260182049a79e503e6f31a380aba22895aecf0553b05a1fcc67300a833a96c86660e55a6eed023ab");
+//        byte[] ciperText = DataUtils.hexStrToBytes("1d56506c5e8a6d5f0d759665bc7b8feaee8474e3e0246d6967151c7746a712287deb451c6f85194048bde5d932a2527d2f64f7066a298f254603cbfd648627c4260182049a79e503e6f31a380aba22895aecf0553b05a1fcc67300a833a96c86660e55a6eed023ab");
+        byte[] ciperText = DataUtils.hexStrToBytes("964428161b25217584789277c83861aec5b00c4e7f8dd5bbd8b8fed74940ae5beabbfcdb4418c0095a29ff6eab8fb3efbee3237ad0be47003dec9f80e2710102");
 //        System.out.println("ciperText: " + Arrays.toString(ciperText));
         byte[] decryptText = EncryptUtils.decrypt(ciperText);
         DataUtils.printBytes(decryptText);

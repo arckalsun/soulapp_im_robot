@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class PacketReaderThread extends Observable implements Runnable {
     private InputStream inputStream;
     private static Logger logger = Logger.getLogger(PacketReaderThread.class.getName());
-    private static final int MESSAGE_SIZE = 1024;
+    private static final int MESSAGE_SIZE = 8192;
     private boolean h;
     private byte[] g;
     private MessageDispatcher messageDispatcher;
@@ -122,6 +122,8 @@ public class PacketReaderThread extends Observable implements Runnable {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    byte[] data = EncryptUtils.decrypt(obj);
+                    DataUtils.printBytes(data);
 
                 }
                 if (a < i2) {

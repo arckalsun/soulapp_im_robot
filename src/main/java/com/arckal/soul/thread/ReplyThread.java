@@ -1,6 +1,7 @@
 package com.arckal.soul.thread;
 
 import com.arckal.soul.enums.ReplyType;
+import com.arckal.soul.imlib.ChatReply;
 import com.arckal.soul.imlib.msg.ImMessage;
 import com.arckal.soul.imlib.msg.chat.*;
 import com.arckal.soul.imlib.packets.Packet;
@@ -27,6 +28,8 @@ public class ReplyThread implements Runnable {
         chatService = SpringContextUtil.getBean(ChatService.class);
     }
 
+
+
     @Override
     public void run() {
         try {
@@ -37,7 +40,8 @@ public class ReplyThread implements Runnable {
 
                 String fromId = cmd.getFrom(); // 消息来源
                 String toId = cmd.getTo();
-                String reply = "";
+                ChatReply reply;
+                String text;
                 ChatMessage chatMessage = ChatMessage.create(toId);
                 boolean hasNextMsg = false;
                 ChatMessage chatMessageNext = ChatMessage.create(toId);
@@ -51,22 +55,37 @@ public class ReplyThread implements Runnable {
                 ImMessage imMessage1 = ImMessage.createChatSendMsg(chatMessage1,fromId);
                 Packet packetInputStart = PacketConverter.convert(imMessage1);    //引
                 chatService.send(packetInputStart);
-
+                long inputDelay = 1000;
 
                 switch (this.cmd.getType()){
-                    case TEXT:
+                    case TEXT :
+
                         String sourceMsg = cmd.getTextMsg().getText();
                         System.out.println("\033[31;4m<<-- 接收: (" + sdf.format(new Date()) +")[From:"+ fromId
                                 + ", To:" + toId + "]" + sourceMsg.trim() +"\033[0m");
                         chatService.saveMsgCommand(cmd);
                         // 调用机器人
-                        reply = chatService.askRobot(sourceMsg);
-                        chatMessage.setMsgType(1);
-                        chatMessage.setMsgContent(new TextMsg(reply));
-                        long inputDelay = reply.length() * 100;
-                        if(inputDelay>5000){
-                            inputDelay=5000;
+                        reply = chatService.askRobot(fromId,sourceMsg);
+                        if(reply.getType().equalsIgnoreCase("img")){
+                            ExpressionMsg expressionMsg = new ExpressionMsg();
+                            expressionMsg.imageUrl = reply.getText();
+                            expressionMsg.imageH = 500;
+                            expressionMsg.imageW = 500;
+                            chatMessage.setMsgType(8);
+                            chatMessage.setMsgContent(expressionMsg);
+                        }else if(reply.getType().equalsIgnoreCase("text")){
+                            text = reply.getText();
+                            chatMessage.setMsgType(1);
+                            chatMessage.setMsgContent(new TextMsg(text));
+                            inputDelay = text.length() * 100;
+                            if(inputDelay>5000){
+                                inputDelay=5000;
+                            }
+                        }else{
+                            // 异步回答
+                            System.out.println("wait answer: " + reply.getText());
                         }
+
                         Thread.sleep(inputDelay);
                         break;
                     case VOICE:
@@ -77,13 +96,30 @@ public class ReplyThread implements Runnable {
                                 + ", To:" + toId + "]" + sourceMsg1.trim() +"\033[0m");
                         chatService.saveMsgCommand(cmd);
                         // 调用机器人
-                        reply = chatService.askRobot(sourceMsg1);
-                        chatMessage.setMsgType(1);
-                        chatMessage.setMsgContent(new TextMsg(reply));
-                        inputDelay = reply.length() * 100;
-                        if(inputDelay>5000){
-                            inputDelay=5000;
+                        reply = chatService.askRobot(fromId,sourceMsg1);
+                        hasNextMsg = true;
+                        chatMessageNext.setMsgType(1);
+                        chatMessageNext.setMsgContent(new TextMsg("你的声音很好听嘛！"));
+
+                        if(reply.getType().equalsIgnoreCase("img")){
+                            ExpressionMsg imgMsg = new ExpressionMsg();
+                            imgMsg.imageUrl = reply.getText();
+                            imgMsg.imageH = 600;
+                            imgMsg.imageW = 600;
+                            chatMessage.setMsgType(8);
+                            chatMessage.setMsgContent(imgMsg);
+                        }else if(reply.getType().equalsIgnoreCase("text")){
+                            text = reply.getText();
+                            chatMessage.setMsgType(1);
+                            chatMessage.setMsgContent(new TextMsg(text));
+                            inputDelay = text.length() * 100;
+                            if(inputDelay>5000){
+                                inputDelay=5000;
+                            }
+                        }else{
+                            System.out.println("wait answer: " + reply.getText());
                         }
+
                         Thread.sleep(inputDelay);
                         break;
                     case USER_EXPRESSION:
@@ -165,19 +201,8 @@ public class ReplyThread implements Runnable {
                         Thread.sleep(2000);
                         break;
                     default:
-                        // 指令包 输入结束
-                        ChatMessage chatMessage2 = ChatMessage.create(toId);
-                        chatMessage2.setMsgType(23);
-                        ImMessage imMessage2 = ImMessage.createChatSendMsg(chatMessage2,fromId);
-                        Packet packetInputEnd = PacketConverter.convert(imMessage2);    //引
-                        chatService.send(packetInputEnd);
-                        return;
+                        break;
                 }
-
-                ImMessage imMessage = ImMessage.createChatSendMsg(chatMessage,fromId);
-                Packet packet = PacketConverter.convert(imMessage);
-
-
 //                System.out.println("发送指令包：输入结束");
                 // 指令包 输入结束
                 ChatMessage chatMessage2 = ChatMessage.create(toId);
@@ -186,7 +211,16 @@ public class ReplyThread implements Runnable {
                 Packet packetInputEnd = PacketConverter.convert(imMessage2);    //引
                 chatService.send(packetInputEnd);
 
+                if(chatMessage.getMsgType()==0){
+                    return;
+                }
+
+                ImMessage imMessage = ImMessage.createChatSendMsg(chatMessage,fromId);
+                Packet packet = PacketConverter.convert(imMessage);
+
+
                 // 发送消息
+
                 chatService.send(packet);
                 chatService.saveImMessage(imMessage);
                 if(chatMessage.getMsgType()==1){

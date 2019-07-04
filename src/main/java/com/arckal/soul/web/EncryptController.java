@@ -17,12 +17,11 @@ import javax.servlet.http.HttpServletResponse;
  * @Version 1.0
  */
 @RestController
-public class MyController {
+public class EncryptController {
 
     private final String key = "123!@#zaqXSWqwer";
 
-    @Autowired
-    private ChatService chatService;
+
 
     /**
      * 解密
@@ -60,12 +59,5 @@ public class MyController {
         }
     }
 
-    @RequestMapping(value="/ask")
-    public String ask(String q,HttpServletRequest request, HttpServletResponse response) throws Exception{
-        if(!StringUtils.isEmpty(q)){
-            return chatService.askRobot(q);
-        }else{
-            return "text is null!";
-        }
-    }
+
 }

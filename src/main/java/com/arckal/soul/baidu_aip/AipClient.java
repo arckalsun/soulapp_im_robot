@@ -2,6 +2,7 @@ package com.arckal.soul.baidu_aip;
 
 import com.arckal.soul.utils.FileUtil;
 import com.arckal.soul.utils.HttpRequest;
+import com.baidu.aip.nlp.AipNlp;
 import com.baidu.aip.speech.AipSpeech;
 import com.baidu.aip.speech.TtsResponse;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -37,6 +38,7 @@ public class AipClient {
 
     private AipSpeech client;
 
+    private AipNlp aipNlp;
 
 //    public AipClient(String appId, String apiKey, String secret_key){
 //        this.APP_ID = appId;
@@ -48,8 +50,37 @@ public class AipClient {
     @PostConstruct
     public void initialize(){
         client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
+        aipNlp = new AipNlp(APP_ID, API_KEY, SECRET_KEY);
     }
 
+    /**
+     * 情感倾向分析
+     * 返回说明
+     * 参数	是否必须	类型	说明
+     * text	是	string	输入的文本内容
+     * items	是	array	输入的词列表
+     * +sentiment	是	number	表示情感极性分类结果, 0:负向，1:中性，2:正向
+     * +confidence	是	number	表示分类的置信度
+     * +positive_prob	是	number	表示属于积极类别的概率
+     * +negative_prob	是	number	表示属于消极类别的概率
+     * @param text
+     */
+    public int sentimentClassify(String text){
+        // 传入可选参数调用接口
+        HashMap<String, Object> options = new HashMap<String, Object>();
+
+        // 情感倾向分析
+        JSONObject res = aipNlp.sentimentClassify(text, options);
+        JSONArray items =  res.getJSONArray("items");
+        int sentiment = items.getJSONObject(0).getInt("sentiment");
+        return sentiment;
+    }
+
+    /**
+     * 语音识别
+     * @param voicepath
+     * @return
+     */
     public String parseVoice(String voicepath){
         String result = "";
         try {
@@ -87,6 +118,12 @@ public class AipClient {
         return parseVoice(path + File.separator+filename);
     }
 
+    /**
+     * 语音合成
+     * @param text
+     * @param filePath
+     * @return
+     */
     public AudioFile toVoice(String text, String filePath){
         // 调用接口
         AudioFile audioFile = new AudioFile();

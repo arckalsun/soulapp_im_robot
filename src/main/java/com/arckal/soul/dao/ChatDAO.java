@@ -7,11 +7,20 @@ import com.arckal.soul.protos.MsgCommandOuterClass.MsgCommand;
 import com.arckal.soul.utils.MongoUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+
+import static com.mongodb.client.model.Filters.*;
 
 
 /**
@@ -21,7 +30,7 @@ import java.util.HashSet;
  */
 @Component
 public class ChatDAO {
-
+    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private  MongoUtil mongoUtil;
     // 获取数据库
@@ -61,6 +70,7 @@ public class ChatDAO {
     }
 
     private void saveChat(String msgId, String from, String to, String text, long timestamp, String msgType){
+
         MongoCollection<Document> collection = this.mongoUtil.getCollection(mdb, mcol);
         Document doc = new Document();
         doc.put("msgId",  msgId);
@@ -68,6 +78,7 @@ public class ChatDAO {
         doc.put("toUserId",to);
         doc.put("msgText",text);
         doc.put("msgTime",timestamp);
+        doc.put("msgTimeStr",sdf.format(new Date()));
         doc.put("msgType",msgType);
         collection.insertOne(doc);
     }
@@ -124,6 +135,43 @@ public class ChatDAO {
         MongoCollection<Document> collection = this.mongoUtil.getCollection(mdb, mcol);
         return mongoUtil.getCount(collection);
     }
+
+    /**
+     * 获取用户聊天数量
+     * @param uid
+     * @return
+     */
+    public long getUserChatCount(String uid){
+        MongoCollection<Document> collection = this.mongoUtil.getCollection(mdb, mcol);
+        Bson filter = Filters.eq("fromUserId",uid);
+        return collection.count(filter);
+    }
+
+    /**
+     * 获取最新的n条用户聊天记录
+     * @param uid
+     * @param n
+     * @return
+     */
+    public List<String> getUserLastChat(String uid, int n){
+        MongoCollection<Document> collection = this.mongoUtil.getCollection(mdb, mcol);
+        Bson filter = Filters.eq("fromUserId",uid);
+//        collection.find(and(gte("stars", 2), lt("stars", 5), eq("categories", "Bakery")))
+//                .sort(Sorts.ascending("name"))
+//                .iterator()
+        MongoCursor<Document> cursor = collection.find(filter).sort(Sorts.descending("msgTime")).limit(n).iterator();
+        List<String> list = new ArrayList<>();
+        try{
+            while (cursor.hasNext()) {
+                Document  document = cursor.next();
+                list.add(document.getString("msgText"));
+            }
+        } finally {
+            cursor.close();
+        }
+        return list;
+    }
+
     // 统计用户数量
     public  int getUserCount(){
         return 0;
